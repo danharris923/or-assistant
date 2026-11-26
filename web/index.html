@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OR Assistant</title>
+<link rel="icon" href="/static/icon.svg">
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/markdown.js" defer></script>
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="M4 17l6-5-6-5M12 19h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z M14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z M14 6l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="brand"><img src="/static/icon.svg" alt="" width="26" height="26"><span>OR Assistant</span></div>
+
+  <div class="model-picker" id="model-picker">
+    <button id="model-button" class="model-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+      <span class="model-label"><span id="model-name">Loading models…</span><span id="model-price" class="muted small"></span></span>
+      <svg class="chev"><use href="#i-chevron"/></svg>
+    </button>
+    <div id="model-panel" class="model-panel" hidden>
+      <input id="model-search" type="search" placeholder="Search 400+ models: claude, gpt, gemini, llama…" autocomplete="off" spellcheck="false">
+      <div class="model-filters">
+        <label class="check"><input type="checkbox" id="tools-only" checked> Can use tools (run commands, edit files)</label>
+        <span id="model-count" class="muted small"></span>
+      </div>
+      <div id="model-list" class="model-list" role="listbox"></div>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <label class="toggle" title="When on, you approve every command and file change before it runs">
+      <input type="checkbox" id="ask-toggle"><span class="track"></span><span class="toggle-label">Ask first</span>
+    </label>
+    <span id="cost" class="cost muted small" title="Spent in this chat"></span>
+    <button id="new-chat" type="button" class="icon-button" title="New chat" aria-label="New chat"><svg><use href="#i-plus"/></svg></button>
+    <button id="settings-button" type="button" class="icon-button" title="Settings" aria-label="Settings"><svg><use href="#i-gear"/></svg></button>
+  </div>
+</header>
+
+<main id="chat" class="chat">
+  <div class="column">
+    <section id="empty" class="empty" hidden>
+      <img src="/static/icon.svg" alt="" width="56" height="56">
+      <h1>What can I help with?</h1>
+      <p class="muted">Runs on <strong id="whoami">this computer</strong> through OpenRouter. No middleman server, no root.</p>
+      <div id="key-needed" class="key-needed" hidden>
+        <p>Add your OpenRouter API key to start.</p>
+        <button id="key-needed-button" type="button" class="primary">Add API key</button>
+      </div>
+      <div id="suggestions" class="suggestions">
+        <button type="button" class="chip">What's taking up space in my home folder?</button>
+        <button type="button" class="chip">Summarize this machine's hardware and OS</button>
+        <button type="button" class="chip">Which processes use the most memory?</button>
+        <button type="button" class="chip">Write a backup script for ~/Documents</button>
+      </div>
+    </section>
+    <div id="items" class="items"></div>
+  </div>
+</main>
+
+<footer class="composer">
+  <form id="composer-form" class="column">
+    <div class="composer-box">
+      <textarea id="input" rows="1" placeholder="Ask anything, or tell it what to do on this computer…" autocomplete="off"></textarea>
+      <button id="send" type="submit" class="send" title="Send (Enter)" aria-label="Send"><svg><use href="#i-send"/></svg></button>
+      <button id="stop" type="button" class="send stop" title="Stop" aria-label="Stop" hidden><svg><use href="#i-stop"/></svg></button>
+    </div>
+    <div id="status" class="status muted small" role="status"></div>
+  </form>
+</footer>
+
+<dialog id="settings" class="dialog">
+  <form method="dialog" class="dialog-head">
+    <h2>Settings</h2>
+    <button class="icon-button" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+  </form>
+  <section>
+    <h3>OpenRouter API key</h3>
+    <p class="muted small">Get one at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a>. Set a spending limit on the key: anything the assistant can run could read it.</p>
+    <p id="key-status" class="small"></p>
+    <div class="row">
+      <input id="key-input" type="password" placeholder="sk-or-v1-…" autocomplete="off" spellcheck="false">
+      <button id="key-save" type="button" class="primary">Save</button>
+      <button id="key-remove" type="button" class="ghost">Remove</button>
+    </div>
+    <p id="key-msg" class="small" role="status"></p>
+  </section>
+  <section>
+    <h3>Usage</h3>
+    <p id="balance" class="small muted">—</p>
+  </section>
+  <section>
+    <h3><svg class="inline-icon"><use href="#i-shield"/></svg> How this stays safe</h3>
+    <ul class="small muted safety">
+      <li>Commands run as <strong id="settings-user">this user</strong>, not root.</li>
+      <li>With <em>Ask first</em> on, nothing runs and no file changes until you click Allow. Reading files and listing folders don't ask.</li>
+      <li>The page only works with the secret from its launcher; other websites and programs can't use it.</li>
+      <li>Your messages go straight to OpenRouter and the model provider, with no other server in between.</li>
+    </ul>
+  </section>
+  <p id="version" class="small muted"></p>
+</dialog>
+</body>
+</html>

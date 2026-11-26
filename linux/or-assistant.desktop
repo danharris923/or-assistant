@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OR Assistant
+Comment=AI assistant using your own OpenRouter key, runs as guest
+Exec=or-assistant-launch
+Icon=or-assistant
+Categories=Utility;
+Terminal=false
+StartupNotify=true
+StartupWMClass=or-assistant

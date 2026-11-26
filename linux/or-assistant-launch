@@ -1,0 +1,34 @@
+#!/bin/sh
+# Open OR Assistant in an app window. The assistant never runs as root:
+# on Slax (root desktop) it hands off to 'guest' via fbliveapp; elsewhere
+# it refuses root and runs as the logged-in user.
+set -e
+
+SELF=$(command -v -- "$0" 2>/dev/null || echo "$0")
+BIN_DIR=$(dirname -- "$SELF")
+
+if [ "$(id -u)" = 0 ]; then
+    if command -v fbliveapp >/dev/null 2>&1; then
+        exec fbliveapp "$SELF" "$@"
+    fi
+    echo "or-assistant: refusing to run as root; start it from your normal user account." >&2
+    exit 1
+fi
+
+URL=$("$BIN_DIR/or-assistant" start)
+DATA="${XDG_CONFIG_HOME:-$HOME/.config}/or-assistant/browser"
+
+# Prefer a Chromium-based browser in app mode (its own window, no tabs/address bar).
+for b in chromium chromium-browser google-chrome google-chrome-stable brave-browser \
+         microsoft-edge microsoft-edge-stable vivaldi vivaldi-stable; do
+    if command -v "$b" >/dev/null 2>&1; then
+        exec "$b" --no-first-run --no-default-browser-check --class=or-assistant \
+            --user-data-dir="$DATA" --app="$URL"
+    fi
+done
+
+# Otherwise open it in the default browser (Firefox etc.).
+if command -v xdg-open >/dev/null 2>&1; then
+    exec xdg-open "$URL"
+fi
+echo "Open this address in a browser: $URL"
